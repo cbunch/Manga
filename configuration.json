@@ -1,0 +1,20 @@
+{
+	"global" : {
+		
+	},
+	downloads : [
+		{
+			"url" : "http://mangafox.me/manga/avatar_the_last_airbender_the_promise/"
+		}, {
+			"url" : "http://mangafox.me/manga/avatar_the_last_airbender_the_lost_adventures/"
+		}, {
+			"url" : "http://mangafox.me/manga/avatar_the_last_airbender_rebound/"
+		}, {
+			"url" : "http://mangafox.me/manga/avatar_the_last_airbender_the_search/"
+		}, {
+			"url" : "http://mangafox.me/manga/avatar_the_last_airbender_the_rift/"
+		}, {
+			"url" : "http://mangafox.me/manga/avatar_the_last_airbender_smoke_and_shadow/"
+		}
+	]
+}
