@@ -19,10 +19,11 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.net.MediaType;
 
+import de.herrlock.manga.downloader.DownloadProcessor;
 import de.herrlock.manga.downloader.MDownloader;
+import de.herrlock.manga.downloader.impl.PlainDownloader;
 import de.herrlock.manga.util.Utils;
 import de.herrlock.manga.util.configuration.Configuration;
 import de.herrlock.manga.util.configuration.DownloadConfiguration;
@@ -55,10 +56,8 @@ final class DownloadHandlerContext {
 
     public UUID put( final MDObject mdObject ) {
         UUID randomUUID;
-        synchronized ( this.downloaders ) {
-            do {
                 randomUUID = UUID.randomUUID();
-            } while ( this.downloaders.containsKey( randomUUID ) );
+        synchronized ( this.downloaders ) {
             this.downloaders.put( randomUUID, mdObject );
         }
         return randomUUID;
@@ -98,11 +97,10 @@ final class StartDownloadHandler extends AbstractHandler {
             .build();
         final DownloadConfiguration conf = DownloadConfiguration.create( p );
 
-        final PlainDownloader newDownloader = new PlainDownloader( conf );
+        final MDownloader newDownloader = new PlainDownloader( conf );
+        DownloadProcessor.getInstance().addDownload( newDownloader );
+
         UUID randomUUID = this.dlContext.put( new MDObject( url, newDownloader ) );
-
-        newDownloader.run();
-
         response.getWriter().write( randomUUID.toString() );
         response.setContentType( MediaType.PLAIN_TEXT_UTF_8.toString() );
         response.setStatus( HttpServletResponse.SC_OK );
@@ -167,30 +165,5 @@ final class MDObject {
 
     public MDownloader getMdownloader() {
         return this.mdownloader;
-    }
-}
-
-/**
- * An {@link MDownloader} that starts the download in a new Thread.
- * 
- * @author HerrLock
- */
-@VisibleForTesting
-final class PlainDownloader extends MDownloader {
-    private final Thread thread;
-
-    public PlainDownloader( final DownloadConfiguration conf ) {
-        super( conf );
-        this.thread = new Thread( new Runnable() {
-            @Override
-            public void run() {
-                PlainDownloader.this.downloadAll();
-            }
-        } );
-    }
-
-    @Override
-    protected void run() {
-        this.thread.start();
     }
 }
